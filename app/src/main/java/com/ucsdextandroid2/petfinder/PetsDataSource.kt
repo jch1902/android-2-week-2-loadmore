@@ -23,7 +23,7 @@ class PetsDataSource(private val lat: Double?, private val lng: Double?) : PageK
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, PetModel>) {
-        DataSource.findAnimals(lat, lng, 1, 10){result ->
+        DataSource.findAnimals(lat, lng, params.key, 10){result ->
             val resultWithPagination = processResult(result)
 
             callback.onResult(resultWithPagination.data, resultWithPagination.nextPage)
@@ -48,7 +48,8 @@ class PetsDataSource(private val lat: Double?, private val lng: Double?) : PageK
                 name = "${it.name} (Page $currentPage)",
                 imageUrl = it.photos.firstOrNull()?.large,
                 breed = it.breeds.primary,
-                id = it.id
+                id = it.id,
+                location = "${it.contact.address.city}, ${it.contact.address.state}"
             )
         }.orEmpty()
 
