@@ -2,6 +2,7 @@ package com.ucsdextandroid2.petfinder
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -13,6 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -28,6 +30,8 @@ class PetsActivity : AppCompatActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private val LOCATION_REQUEST_CODE = 9
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pets)
@@ -37,9 +41,64 @@ class PetsActivity : AppCompatActivity() {
 //        val adapter = PetsAdapter()
         recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 //        recyclerView.adapter = adapter
-
+        checkForLocationPermission()
         //LivePagedListBuilder of the PetsDataSourceFactory
     }
+
+
+    fun checkForLocationPermission(){
+        if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            toast("Location Permission Granted")
+            getLocation()
+        }else{
+            toast("Location Permission Denied")
+            val shouldShowRequestPermissionRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            if(shouldShowRequestPermissionRationale){
+                showPermissionRational()
+            }else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    LOCATION_REQUEST_CODE
+                )
+            }
+        }
+    }
+    private fun showPermissionRational(){
+        AlertDialog.Builder(this)
+            .setTitle("Location")
+            .setMessage("We need your location in order to show you pets in your area")
+            .setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, which ->
+                if(which == DialogInterface.BUTTON_POSITIVE){
+                    checkForLocationPermission()
+                }
+            })
+            .setNegativeButton("No Thanks", DialogInterface.OnClickListener { dialog, which ->
+                getLocationFailed()
+            })
+            .show()
+    }
+    private fun getLocation(){
+        toast("Getting Location")
+    }
+    fun toast(toastMessage: String){
+        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show()
+    }
+    private fun getLocationFailed(){
+        toast("Getting Location Failed")
+    }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if(requestCode == LOCATION_REQUEST_CODE){
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                getLocation()
+            }else{
+                getLocationFailed()
+            }
+        }
+    }
+
 
     private class PetCardViewHolder private constructor(view: View) : RecyclerView.ViewHolder(view) {
 
