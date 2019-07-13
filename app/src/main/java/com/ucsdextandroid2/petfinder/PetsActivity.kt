@@ -41,19 +41,19 @@ class PetsActivity : AppCompatActivity() {
 //        val adapter = PetsAdapter()
         recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 //        recyclerView.adapter = adapter
-        checkForLocationPermission()
+        checkForLocationPermission(true)
         //LivePagedListBuilder of the PetsDataSourceFactory
     }
 
 
-    fun checkForLocationPermission(){
+    fun checkForLocationPermission(showRational: Boolean){
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             toast("Location Permission Granted")
             getLocation()
         }else{
             toast("Location Permission Denied")
             val shouldShowRequestPermissionRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            if(shouldShowRequestPermissionRationale){
+            if(showRational && shouldShowRequestPermissionRationale){
                 showPermissionRational()
             }else {
                 ActivityCompat.requestPermissions(
@@ -70,11 +70,13 @@ class PetsActivity : AppCompatActivity() {
             .setMessage("We need your location in order to show you pets in your area")
             .setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, which ->
                 if(which == DialogInterface.BUTTON_POSITIVE){
-                    checkForLocationPermission()
+                    checkForLocationPermission(false)
                 }
             })
             .setNegativeButton("No Thanks", DialogInterface.OnClickListener { dialog, which ->
-                getLocationFailed()
+                if(which == DialogInterface.BUTTON_NEGATIVE) {
+                    getLocationFailed()
+                }
             })
             .show()
     }
