@@ -6,6 +6,10 @@ import androidx.paging.PageKeyedDataSource
 /**
  * Created by rjaylward on 2019-07-13
  */
+class PetsDataSourceFactory(private val lat: Double?, private val lng: Double?): androidx.paging.DataSource.Factory<Int, PetModel>(){
+    override fun create(): androidx.paging.DataSource<Int, PetModel> = PetsDataSource(lat, lng)
+}
+
 class PetsDataSource(private val lat: Double?, private val lng: Double?) : PageKeyedDataSource<Int,PetModel>(){
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, PetModel>) {
         DataSource.findAnimals(lat, lng, 1, 10){result ->
@@ -41,7 +45,7 @@ class PetsDataSource(private val lat: Double?, private val lng: Double?) : PageK
 
         val data = apiResult.data?.animals?.map {
             return@map PetModel(
-                name = it.name,
+                name = "${it.name} (Page $currentPage)",
                 imageUrl = it.photos.firstOrNull()?.large,
                 breed = it.breeds.primary,
                 id = it.id
