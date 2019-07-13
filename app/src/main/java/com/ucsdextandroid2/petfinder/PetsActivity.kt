@@ -18,13 +18,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.paging.*
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 
 class PetsActivity : AppCompatActivity() {
 
@@ -95,8 +96,46 @@ class PetsActivity : AppCompatActivity() {
             })
             .show()
     }
+    @SuppressLint("MissingPermission")
     private fun getLocation(){
-        toast("Getting Location")
+//        toast("Getting Location")
+//
+//        LocationServices
+//            .getFusedLocationProviderClient(this)
+//            .lastLocation
+//            .addOnSuccessListener {location: Location? ->
+//                toast("Location Found ${location?.latitude}, ${location?.longitude}")
+//            }
+//            .addOnFailureListener{error ->
+//                toast(error.message ?: "Find Location Failed")
+//            }
+
+        val client = LocationServices
+            .getFusedLocationProviderClient(this)
+
+        val locationCallback: LocationCallback = object : LocationCallback(){
+
+            override  fun onLocationResult(locationResult: LocationResult?){
+                super.onLocationResult(locationResult)
+
+                val location = locationResult?.lastLocation
+
+                toast("Location Found ${location?.latitude}, ${location?.longitude}")
+                setTitle("${location?.latitude}, ${location?.longitude}")
+            }
+        }
+        lifecycle.addObserver(object : DefaultLifecycleObserver{
+            override fun onResume(owner: LifecycleOwner){
+                super.onResume(owner)
+
+                client.requestLocationUpdates(LocationRequest(), locationCallback, null)
+            }
+            override fun onPause(owner: LifecycleOwner){
+                super.onPause(owner)
+
+                client.removeLocationUpdates(locationCallback)
+            }
+        })
     }
     fun toast(toastMessage: String){
         Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show()
