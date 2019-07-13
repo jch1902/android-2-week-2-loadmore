@@ -42,8 +42,13 @@ class PetsActivity : AppCompatActivity() {
 //        val adapter = PetsAdapter()
         recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 //        recyclerView.adapter = adapter
-        checkForLocationPermission(true)
+
         //LivePagedListBuilder of the PetsDataSourceFactory
+//      checkForLocationPermission(true)
+        val showPermissionRation: Boolean = showPermissionRationalIfAble()
+        if(!showPermissionRation){
+            getLocation()
+        }
     }
 
 
@@ -54,8 +59,8 @@ class PetsActivity : AppCompatActivity() {
         }else{
             toast("Location Permission Denied")
 
-            if(showRational && shouldShowRequestPermissionRationale){
-                showPermissionRational()
+            if(showRational && showPermissionRationalIfAble()){
+                //Don't need anything here
             }else {
                 ActivityCompat.requestPermissions(
                     this,
@@ -63,6 +68,15 @@ class PetsActivity : AppCompatActivity() {
                     LOCATION_REQUEST_CODE
                 )
             }
+        }
+    }
+    private fun showPermissionRationalIfAble(): Boolean{
+        val ableToShowRational = shouldShowRequestPermissionRationale
+        if(ableToShowRational){
+            showPermissionRational()
+            return true
+        }else{
+            return false
         }
     }
     private fun showPermissionRational(){
