@@ -43,11 +43,12 @@ class PetsActivity : AppCompatActivity() {
 //        recyclerView.adapter = adapter
 
         //LivePagedListBuilder of the PetsDataSourceFactory
-//      checkForLocationPermission(true)
-        val showPermissionRation : Boolean = showPermissionRationalIfAble()
-        if(!showPermissionRation){
-            getLocation()
-        }
+
+        checkForLocationPermission(true)
+//        val showPermissionRation:Boolean = showPermissionRationalIfAble()
+//        if(!showPermissionRation){
+//            getLocation()
+//        }
     }
 
 
