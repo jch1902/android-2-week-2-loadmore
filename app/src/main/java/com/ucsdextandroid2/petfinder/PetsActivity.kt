@@ -31,6 +31,7 @@ class PetsActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val LOCATION_REQUEST_CODE = 9
+    private val shouldShowRequestPermissionRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +53,7 @@ class PetsActivity : AppCompatActivity() {
             getLocation()
         }else{
             toast("Location Permission Denied")
-            val shouldShowRequestPermissionRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
+
             if(showRational && shouldShowRequestPermissionRationale){
                 showPermissionRational()
             }else {
@@ -87,7 +88,11 @@ class PetsActivity : AppCompatActivity() {
         Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show()
     }
     private fun getLocationFailed(){
-        toast("Getting Location Failed")
+        if(!shouldShowRequestPermissionRationale){
+            toast("Getting Location Failed, go to settings to enable the permission")
+        }else {
+            toast("Getting Location Failed")
+        }
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
