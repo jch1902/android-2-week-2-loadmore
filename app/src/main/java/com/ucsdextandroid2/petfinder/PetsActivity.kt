@@ -99,43 +99,49 @@ class PetsActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun getLocation(){
 //        toast("Getting Location")
-//
-//        LocationServices
-//            .getFusedLocationProviderClient(this)
-//            .lastLocation
-//            .addOnSuccessListener {location: Location? ->
-//                toast("Location Found ${location?.latitude}, ${location?.longitude}")
-//            }
-//            .addOnFailureListener{error ->
-//                toast(error.message ?: "Find Location Failed")
-//            }
 
-        val client = LocationServices
+        LocationServices
             .getFusedLocationProviderClient(this)
-
-        val locationCallback: LocationCallback = object : LocationCallback(){
-
-            override  fun onLocationResult(locationResult: LocationResult?){
-                super.onLocationResult(locationResult)
-
-                val location = locationResult?.lastLocation
-
-                toast("Location Found ${location?.latitude}, ${location?.longitude}")
+            .lastLocation
+            .addOnSuccessListener {location: Location? ->
                 setTitle("${location?.latitude}, ${location?.longitude}")
-            }
-        }
-        lifecycle.addObserver(object : DefaultLifecycleObserver{
-            override fun onResume(owner: LifecycleOwner){
-                super.onResume(owner)
 
-                client.requestLocationUpdates(LocationRequest(), locationCallback, null)
+                if(location != null){
+                    onLocationFound(location.latitude, location.longitude)
+                }else{
+                    toast("Location was null")
+                }
             }
-            override fun onPause(owner: LifecycleOwner){
-                super.onPause(owner)
+            .addOnFailureListener{error ->
+                toast(error.message ?: "Find Location Failed")
+            }
 
-                client.removeLocationUpdates(locationCallback)
-            }
-        })
+//        val client = LocationServices
+//            .getFusedLocationProviderClient(this)
+//
+//        val locationCallback: LocationCallback = object : LocationCallback(){
+//
+//            override  fun onLocationResult(locationResult: LocationResult?){
+//                super.onLocationResult(locationResult)
+//
+//                val location = locationResult?.lastLocation
+//
+//                toast("Location Found ${location?.latitude}, ${location?.longitude}")
+//                setTitle("${location?.latitude}, ${location?.longitude}")
+//            }
+//        }
+//        lifecycle.addObserver(object : DefaultLifecycleObserver{
+//            override fun onResume(owner: LifecycleOwner){
+//                super.onResume(owner)
+//
+//                client.requestLocationUpdates(LocationRequest(), locationCallback, null)
+//            }
+//            override fun onPause(owner: LifecycleOwner){
+//                super.onPause(owner)
+//
+//                client.removeLocationUpdates(locationCallback)
+//            }
+//        })
     }
     fun toast(toastMessage: String){
         Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show()
@@ -158,7 +164,11 @@ class PetsActivity : AppCompatActivity() {
             }
         }
     }
-
+    private fun onLocationFound(lat: Double, lng: Double){
+        DataSource.findAnimals(lat, lng){result ->
+            toast("Found ${result.data?.animals?.size} Animals in your area")
+        }
+    }
 
     private class PetCardViewHolder private constructor(view: View) : RecyclerView.ViewHolder(view) {
 
