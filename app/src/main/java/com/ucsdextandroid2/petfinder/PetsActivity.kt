@@ -106,7 +106,7 @@ class PetsActivity : AppCompatActivity() {
             .getFusedLocationProviderClient(this)
             .lastLocation
             .addOnSuccessListener {location: Location? ->
-                setTitle("${location?.latitude}, ${location?.longitude}")
+                setTitle("Finding pets near ${location?.latitude}, ${location?.longitude}")
 
                 if(location != null){
                     onLocationFound(location.latitude, location.longitude)
